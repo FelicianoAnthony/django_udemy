@@ -1,6 +1,10 @@
 from rest_framework import viewsets
 from .models import Customer, Profession, DataSheet, Document
-from .serializers import CustomerSerializer, ProfessionSerializer, DataSheetSerializer, DocumentSerializer
+from .serializers import (CustomerSerializer,
+ ProfessionSerializer,
+ DataSheetSerializer,
+ DocumentSerializer)
+
 from rest_framework.response import Response
 from django.http import HttpResponseNotAllowed
 from rest_framework.status import HTTP_200_OK
@@ -8,8 +12,33 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAdminUser, DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
+
+
+
+
 # ViewSets define the view behavior.
 class CustomerViewSet(viewsets.ModelViewSet):
+
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    authentication_classes = [TokenAuthentication,]
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     serializer_class = CustomerSerializer
     # in /customers/ adds a button called filter that filters like this http://localhost:8000/api/customers/?name=Billzzzz 
     # bascially the same thing we did in get_queryset except we dont have to code it all 
@@ -250,11 +279,22 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 
 class ProfessionViewSet(viewsets.ModelViewSet):
+
+    authentication_classes = [TokenAuthentication,]
+
     queryset = Profession.objects.all()
     serializer_class = ProfessionSerializer
+    permission_classes = [IsAdminUser,]
 
 
 class DataSheetViewSet(viewsets.ModelViewSet):
+
+    # this overrides settings.py authentication make you not have to pass token to view this 
+    permission_classes = [AllowAny,]
+
+
+
+
     queryset = DataSheet.objects.all()
     serializer_class = DataSheetSerializer
 
@@ -262,5 +302,20 @@ class DataSheetViewSet(viewsets.ModelViewSet):
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
+    """
+    - go to users & in “available user permissions” you can specify add/change/delete abilities for specific API users who 
+        are authorized with a token 
+    — e.g. you can have a user be able to POST (Add) but not to PUT(change) or DELETE(delete) but they need their token to do it 
+
+    -- NOT WITH ANNONREADONLY..
+    """
+
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    authentication_classes = [TokenAuthentication,]
+    # unclear what anonyorealdonly does 
+    #permission_classes = [DjangoModelPermissionsOrAnonReadOnly,]
+    
+    permission_classes = [DjangoModelPermissions,]
+
+

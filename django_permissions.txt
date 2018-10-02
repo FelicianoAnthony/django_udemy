@@ -1,0 +1,86 @@
+DJANGOMODELPERMISSIONS 
+
+- go to users & in “available user permissions” you can specify add/change/delete abilities for specific API users who are authorized with a token — e.g. you can have a user be able to POST (Add) but not to PUT(change) or DELETE(delete) but they need their token to do it 
+
+    authentication_classes = [TokenAuthentication,]
+
+    permission_classes = [DjangoModelPermissions,]
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+Find me (authenticate) & authorize me
+401 - Forbidden
+    - you’re not allowed to hit this endpoint and i don’t know who you are 
+
+403 - Unauthorized — permissions issue 
+    - i know who you are but you’re not allowed to do this 
+
+^^^ this is having a user with an API token but not allowing them to view specific endpoints 
+^^ do this by having these lines in the same viewset class  in this order … 
+authentication_classes = [TokenAuthentication,]
+permission_classes = [IsAdminUser,]
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+- if i know you then you can read this endpoint but you need a token to POST/DELETE/etc…
+
+    authentication_classes = [TokenAuthentication,]
+    permission_classes = [IsAuthenticatedOrReadOnly,]
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+- staff means admin in django 
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+SETTINGS.PY
+***** authentication in classes will override authentication in settings.py*****
+
+
+- add to installed apps 
+
+'rest_framework.authtoken', 
+
+- add to REST_FRAMEWORK variable
+
+     'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),  
+
+
+
+URLS.PY
+
+- in url_patterns variable
+
+from rest_framework.authtoken.views import obtain_auth_token
+path('api-token-auth/', obtain_auth_token),
+
+VIEWS.PY
+
+- in every viewset class 
+
+from rest_framework.authentication import TokenAuthentication
+authentication_classes = [TokenAuthentication,]
+
+
+- add in a class viweset if you want to override authentication in settings.py
+
+from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny,]
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+https://stackoverflow.com/questions/28058326/django-rest-framework-obtain-auth-token-using-email-instead-username
+
+^^ investigate
+
